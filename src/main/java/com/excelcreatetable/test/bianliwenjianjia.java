@@ -27,7 +27,7 @@ import java.util.*;
  */
 public class bianliwenjianjia {
     public static void main(String[] args) throws IOException, SQLException {
-        traverseFolder("D:\\工作");
+        traverseFolder("C:\\Users\\超\\Desktop\\V2\\归档");
     }
 
     private final static String driver = "com.mysql.cj.jdbc.Driver";
@@ -116,10 +116,16 @@ public class bianliwenjianjia {
         BufferedReader br = new BufferedReader(isr);
         String s = br.readLine();
         String[] fields = s.split(",");
-        StringBuilder sb = new StringBuilder("create table " + tableName + " (");
+        StringBuilder sb = new StringBuilder("create table `" + tableName + "` (");
+        List<String> list = new ArrayList<>();//用于处理是否有重复列名
+
         for (String field : fields) {
             System.out.println(field);
             String szc = ToPinyin(field);
+            if(list.contains(szc)){
+                szc = szc+  String.valueOf(System.currentTimeMillis()).substring(10,13);
+            }
+            list.add(szc);
             sb.append(szc.replaceAll("\"", "") + " text DEFAULT NULL COMMENT'" + field + "',");// 根据实际情况修改字段长度
             // System.err.println(szc);
             col.append(szc).append(" ,");
@@ -168,7 +174,7 @@ public class bianliwenjianjia {
      */
     private static void savedate(List<String[]> listData, String cols, String tableName) throws SQLException {
         StringBuilder insertSQL=new StringBuilder();
-        insertSQL.append("insert into ").append(tableName).append("(").append(cols.replaceAll("\"","")).append(") values(");
+        insertSQL.append("insert into `").append(tableName).append("`(").append(cols.replaceAll("\"","")).append(") values(");
         for(int h=0;h<cols.split(",").length;h++){
             insertSQL.append("?,");
         }
@@ -180,20 +186,47 @@ public class bianliwenjianjia {
         connection.setAutoCommit(false);
 
         System.out.println("开始插入数据");
+        System.out.println("表头长度-----"+cols.split(",").length);
+        //判断文件表头数据是否带有双引号
+        boolean flag = false;
+        String[] fields = cols.split(",");
+        for(int i= 0 ;i<fields.length;i++){
+            if(fields[i].trim().startsWith("\"") && fields[i].trim().endsWith("\"")){
+                flag = true;//两头出现双引号设为true
+            }
+        }
+
         Long startTime = System.currentTimeMillis();
-        for (int i = 0; i <listData.size() ; i++) {
-            System.out.println(Arrays.toString(listData.get(i)) +"---------------");
-            for(int g=0;g<listData.get(i).length;g++){
-                statement.setString(g+1,listData.get(i)[g]);
-            }
-            if(cols.split(",").length != listData.get(i).length ){ //判断数据的列数 是否等于表头的列数
-                int dataLength = listData.get(i).length;
-                for(int g= dataLength ;g<cols.split(",").length ;g++){
-                    statement.setString(g+1,null);
+        if(!flag){
+            for (int i = 0; i <listData.size() ; i++) {
+                System.out.println(Arrays.toString(listData.get(i)) +"---------------");
+                for(int g=0;g<listData.get(i).length;g++){
+                    statement.setObject(g+1,listData.get(i)[g]);
                 }
+                if(cols.split(",").length != listData.get(i).length ){ //判断数据的列数 是否等于表头的列数
+                    int dataLength = listData.get(i).length;
+                    for(int g= dataLength ;g<cols.split(",").length ;g++){
+                        statement.setString(g+1,null);
+                    }
+                }
+                //将要执行的SQL语句先添加进去，不执行
+                statement.addBatch();
             }
-            //将要执行的SQL语句先添加进去，不执行
-            statement.addBatch();
+        }else {
+            for (int i = 0; i <listData.size() ; i++) {
+                System.out.println(Arrays.toString(listData.get(i)) +"---------------");
+                for(int g=0;g<listData.get(i).length;g++){
+                    statement.setObject(g+1,listData.get(i)[g].trim().replaceAll("\"$","").replaceAll("^\"",""));
+                }
+                if(cols.split(",").length != listData.get(i).length ){ //判断数据的列数 是否等于表头的列数
+                    int dataLength = listData.get(i).length;
+                    for(int g= dataLength ;g<cols.split(",").length ;g++){
+                        statement.setString(g+1,null);
+                    }
+                }
+                //将要执行的SQL语句先添加进去，不执行
+                statement.addBatch();
+            }
         }
         //50W条SQL语句已经添加完成，执行这50W条命令并提交
         statement.executeBatch();
@@ -223,7 +256,7 @@ public class bianliwenjianjia {
                 .replaceAll("；", "").replaceAll("：", "").replaceAll("？", "")
                 .replaceAll("￥", "").replaceAll("……", "").replaceAll(" ", "")
                 .replaceAll("!", "").replaceAll("&", "").replaceAll("#", "")
-                .replaceAll("\\*", "").replaceAll("@", "");
+                .replaceAll("\\*", "").replaceAll("@", "").replaceAll("　","");
 
         String pinyinStr = "";
         char[] newChar = chinese.toCharArray();
@@ -233,10 +266,10 @@ public class bianliwenjianjia {
         defaultFormat.setVCharType(HanyuPinyinVCharType.WITH_V);
         for (int i = 0; i < newChar.length; i++) {
             if (newChar[i] > 128) {
-                //System.err.println((char) newChar[i]);
+               // System.err.println((char) newChar[i]);
                 try {
                     pinyinStr += PinyinHelper.toHanyuPinyinStringArray(newChar[i], defaultFormat)[0];
-                    System.out.println(pinyinStr);
+                   // System.out.println(pinyinStr);
                 } catch (BadHanyuPinyinOutputFormatCombination e) {
                     e.printStackTrace();
                 }
