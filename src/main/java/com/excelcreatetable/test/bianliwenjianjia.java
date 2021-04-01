@@ -1,5 +1,8 @@
 package com.excelcreatetable.test;
 
+import com.excelcreatetable.demo.createtable.CreateTable;
+import com.excelcreatetable.demo.easyexcelreadhead.ReadHead;
+import com.excelcreatetable.demo.threadLocalShare.ThreadLocalShare;
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
@@ -8,6 +11,7 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 import org.apache.any23.encoding.TikaEncodingDetector;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.sql.Connection;
@@ -66,15 +70,19 @@ public class bianliwenjianjia {
                         traverseFolder(file2.getAbsolutePath());
                     } else {
                         String pa = file2.getAbsolutePath();
+                        String file2Name = file2.getName();
+                        String tableName = file2Name.substring(0, file2Name.lastIndexOf("."));
                         if ("csv".equals(pa.substring(pa.lastIndexOf(".") + 1))) {
-                            String file2Name = file2.getName();
-                            String tableName = file2Name.substring(0, file2Name.lastIndexOf("."));
                             System.out.println("文件:" + pa);
                             System.out.println("数据库表名" + tableName);
                             //创建表
                             String col = createTabale(pa, tableName);
                             // 数据入库
                             readData(tableName, col,pa);
+                        }
+                        if("xlsx".equals(pa.substring(pa.lastIndexOf(".") + 1))) {
+                            //todo 不完善
+                            //xlsCreateTable(pa,tableName,null);
                         }
 
                     }
@@ -311,4 +319,19 @@ public class bianliwenjianjia {
     }
 
     //todo 删除表
+
+
+    /**
+     * xlsx  创表入库
+     * @param filePath
+     * @param tableName
+     * @param httpServletRequest
+     */
+    public static  void xlsCreateTable(String filePath, String tableName , HttpServletRequest httpServletRequest){
+        ThreadLocalShare.filePath.set(filePath);
+
+        ReadHead readHead = new ReadHead();
+        readHead.readHead(filePath,tableName);
+    }
+
 }
