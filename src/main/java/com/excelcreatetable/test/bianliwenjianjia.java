@@ -27,13 +27,17 @@ import java.util.*;
  */
 public class bianliwenjianjia {
     public static void main(String[] args) throws IOException, SQLException {
-        traverseFolder("C:\\Users\\超\\Desktop\\V2\\归档");
+        traverseFolder("C:\\Users\\超\\Desktop\\“我的未来网”非法吸收公众存款3.29");
     }
 
     private final static String driver = "com.mysql.cj.jdbc.Driver";
-    private final static String url = "jdbc:mysql://localhost:3306/s?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+//    private final static String url = "jdbc:mysql://localhost:3306/s?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+//    private final static String userName = "root";
+//    private final static String passWord = "root";
+
+    private final static String url = "jdbc:mysql://192.168.33.111:3306/weilaiwang_add20210409?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private final static String userName = "root";
-    private final static String passWord = "root";
+    private final static String passWord = "123456";
     private static Connection connection;
 
     /**
@@ -201,7 +205,7 @@ public class bianliwenjianjia {
             for (int i = 0; i <listData.size() ; i++) {
                 System.out.println(Arrays.toString(listData.get(i)) +"---------------");
                 for(int g=0;g<listData.get(i).length;g++){
-                    statement.setObject(g+1,listData.get(i)[g]);
+                    statement.setObject(g+1,listData.get(i)[g].trim());
                 }
                 if(cols.split(",").length != listData.get(i).length ){ //判断数据的列数 是否等于表头的列数
                     int dataLength = listData.get(i).length;
@@ -216,7 +220,7 @@ public class bianliwenjianjia {
             for (int i = 0; i <listData.size() ; i++) {
                 System.out.println(Arrays.toString(listData.get(i)) +"---------------");
                 for(int g=0;g<listData.get(i).length;g++){
-                    statement.setObject(g+1,listData.get(i)[g].trim().replaceAll("\"$","").replaceAll("^\"",""));
+                    statement.setObject(g+1,listData.get(i)[g].replaceAll("\"$","").replaceAll("^\"","").trim());
                 }
                 if(cols.split(",").length != listData.get(i).length ){ //判断数据的列数 是否等于表头的列数
                     int dataLength = listData.get(i).length;
