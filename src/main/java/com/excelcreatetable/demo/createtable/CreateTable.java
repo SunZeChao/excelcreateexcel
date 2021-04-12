@@ -126,7 +126,7 @@ public class CreateTable {
             }
         }
         //拼凑完 建表语句 设置默认字符集
-        sql.append(")DEFAULT CHARSET=utf8;");
+        sql.append(")DEFAULT CHARSET=utf8 COMMENT = '"+ThreadLocalShare.filePath.get()+"'");
         //sql+=")DEFAULT CHARSET=utf8;";
         System.out.println("创建表的sql语句 = " + sql);
 

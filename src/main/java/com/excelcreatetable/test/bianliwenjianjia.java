@@ -27,7 +27,7 @@ import java.util.*;
  */
 public class bianliwenjianjia {
     public static void main(String[] args) throws IOException, SQLException {
-        traverseFolder("C:\\Users\\超\\Desktop\\“我的未来网”非法吸收公众存款3.29");
+        traverseFolder("C:\\Users\\超\\Desktop\\易宝支付有限公司-聚爱财非吸案");
     }
 
     private final static String driver = "com.mysql.cj.jdbc.Driver";
@@ -135,7 +135,7 @@ public class bianliwenjianjia {
             col.append(szc).append(" ,");
         }
         sb = new StringBuilder(sb.substring(0, sb.length() - 1));
-        sb.append(") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT");
+        sb.append(") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT  COMMENT = '"+path+"'");
         System.err.println(sb);
         Connection con = getConnection();
         PreparedStatement ps = con.prepareStatement(sb.toString());
